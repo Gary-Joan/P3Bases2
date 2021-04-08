@@ -36,3 +36,47 @@ db.getCollection("patents_grupo24").find(
         "inventors.inventor_last_name" : 1.0
     }
 );
+
+
+
+// 4. Top 5 países de inventores con más patentes.
+
+db.getCollection("patents_grupo24").aggregate(
+    [
+        { 
+            "$unwind" : { 
+                "path" : "$inventors", 
+                "preserveNullAndEmptyArrays" : true
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : { 
+                    "patente" : "$patent_title", 
+                    "pais" : "$inventors.inventor_country"
+                }
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : { 
+                    "pais" : "$_id.pais"
+                }, 
+                "contador" : { 
+                    "$sum" : 1.0
+                }
+            }
+        }, 
+        { 
+            "$sort" : { 
+                "contador" : -1.0
+            }
+        }, 
+        { 
+            "$limit" : 5.0
+        }
+    ], 
+    { 
+        "allowDiskUse" : false
+    }
+);
