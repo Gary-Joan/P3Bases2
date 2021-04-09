@@ -59,9 +59,7 @@ db.getCollection("patents_grupo24").aggregate(
         }, 
         { 
             "$group" : { 
-                "_id" : { 
-                    "pais" : "$_id.pais"
-                }, 
+                "_id"  "$_id.pais", 
                 "contador" : { 
                     "$sum" : 1.0
                 }
@@ -74,6 +72,117 @@ db.getCollection("patents_grupo24").aggregate(
         }, 
         { 
             "$limit" : 5.0
+        }
+    ], 
+    { 
+        "allowDiskUse" : false
+    }
+);
+
+// 5 Top 5 de países con mayor población que incluya el inglés o el español entre sus
+idiomas.
+
+db.getCollection("countries_grupo24").aggregate(
+    [
+        { 
+            "$match" : { 
+                "$or" : [
+                    { 
+                        "languages.name" : "Spanish"
+                    }, 
+                    { 
+                        "languages.name" : "English"
+                    }
+                ]
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : "$name", 
+                "poblacion" : { 
+                    "$sum" : "$population"
+                }
+            }
+        }, 
+        { 
+            "$sort" : { 
+                "poblacion" : -1.0
+            }
+        }, 
+        { 
+            "$limit" : 5.0
+        }
+    ], 
+    { 
+        "allowDiskUse" : false
+    }
+);
+
+//6 Países que tienen fronteras con Irán y Turquía, y que tienen una población menor a
+diez millones de habitantes.
+db.getCollection("countries_grupo24").aggregate(
+    [
+        { 
+            "$match" : { 
+                "$or" : [
+                    { 
+                        "borders" : "IRN"
+                    }, 
+                    { 
+                        "borders" : "TUR"
+                    }
+                ]
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : "$name", 
+                "poblacion" : { 
+                    "$sum" : "$population"
+                }
+            }
+        }, 
+        { 
+            "$match" : { 
+                "poblacion" : { 
+                    "$lt" : 10000000.0
+                }
+            }
+        }
+    ], 
+    { 
+        "allowDiskUse" : false
+    }
+);
+
+//7 Se debe redactar cual es el resultado que devuelve la consulta que se encuentra en
+el archivo consulta.mongodb, el cual se encuentra en la carpeta anteriormente
+mencionada.
+
+--Todas las pantentes en donde sus inventores sean de mas de 1 pais--
+
+//8 Patentes que tengan inventores de US y JP.
+db.getCollection("patents_grupo24").aggregate(
+    [
+        { 
+            "$match" : { 
+                "$and" : [
+                    { 
+                        "inventors.inventor_country" : "US"
+                    }, 
+                    { 
+                        "inventors.inventor_country" : "JP"
+                    }
+                ]
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : { 
+                    "numero" : "$patent_number", 
+                    "patente" : "$patent_title"
+                }
+            }
         }
     ], 
     { 
