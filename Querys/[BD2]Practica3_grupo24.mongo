@@ -59,7 +59,7 @@ db.getCollection("patents_grupo24").aggregate(
         }, 
         { 
             "$group" : { 
-                "_id"  "$_id.pais", 
+                "_id" : "$_id.pais", 
                 "contador" : { 
                     "$sum" : 1.0
                 }
